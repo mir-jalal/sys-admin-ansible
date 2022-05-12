@@ -1,0 +1,10 @@
+- hosts: all
+  become: true
+  become_user: root
+
+  roles:
+  - etais
+  
+  tasks:
+    - name: Testing this out
+      debug: msg="Hello from user {{ ansible_user_id }} on server {{ ansible_hostname }}!"

@@ -1,0 +1,25 @@
+- name: Add user scoring
+  user:
+    name: scoring
+- name: Create .ssh directory
+  file:
+    path: /home/scoring/.ssh
+    state: directory
+    owner: scoring
+    group: scoring
+    mode: '0700'
+
+- name: Download user scoring public key
+  get_url:
+    url: https://scoring.sa.cs.ut.ee/files/id_rsa.pub
+    dest: /home/scoring/.ssh/authorized_keys
+    owner: scoring
+    group: scoring
+    mode: '0600'
+
+- name: Create the /etc/sudoers.d/scoring file
+  lineinfile:
+    dest: /etc/sudoers.d/scoring
+    line: "scoring ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    create: yes
