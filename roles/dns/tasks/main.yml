@@ -1,0 +1,164 @@
+---
+- name: DNS | Autoremove unneeded packages installed as dependencies
+  dnf:
+    autoremove: yes
+
+- name: Add dns service
+  firewalld:
+    service: dns
+    permanent: yes
+    state: enabled
+
+- name: Add 8301/udp service
+  firewalld:
+    port: 8301/udp
+    permanent: yes
+    state: enabled
+
+- name: Add 8301/tcp service
+  firewalld:
+    port: 8301/tcp
+    permanent: yes
+    state: enabled
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Disable IPv6
+  copy:
+    src: 70-ipv6.conf
+    dest: /etc/sysctl.d/70-ipv6.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Change net.ipv6.conf.default.disable_ipv6 to 1.
+  sysctl:
+    name: net.ipv6.conf.default.disable_ipv6
+    value: '1'
+    sysctl_file: /etc/sysctl.d/70-ipv6.conf
+    reload: yes
+
+- name: Change net.ipv6.conf.all.disable_ipv6 to 1.
+  sysctl:
+    name: net.ipv6.conf.all.disable_ipv6
+    value: '1'
+    sysctl_file: /etc/sysctl.d/70-ipv6.conf
+    reload: yes
+
+- name: Inserts into hostname
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Inserts into hosts
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reboot
+
+- name: Install named 
+  yum:
+    name: ['bind', 'bind-utils']
+    state: latest
+
+- name: Create log directory 
+  file:
+    path: /var/named/log
+    state: directory
+    owner: named
+    group: named
+    mode: '0750'
+
+- name: Create default in log 
+  file:
+    path: "/var/named/log/{{ item }}"
+    state: touch
+    owner: named
+    group: named
+    mode: '0640'
+  with_items:
+  - default
+  - auth_servers
+  - zone_transfers
+  - client_security
+  - queries
+  - query-errors
+
+- name: Copy named.conf
+  copy:
+    src: named.conf
+    dest: /etc/named.conf
+    owner: root
+    group: named
+    mode: '0644'
+  notify: restart bind
+
+- name: Get OpenStack metadata
+  uri:
+    url: http://169.254.169.254/latest/meta-data/public-ipv4 
+    method: GET
+    status_code: 200
+    return_content: yes
+  register: cloud_metadata
+
+- name: Add zone file 
+  template:
+    src: zonefile.j2
+    dest: /etc/named/{{ hostname }}.{{ domain_name }}
+    owner: root
+    group: named
+    mode: '0644'
+
+- name: Add zone to named.conf 
+  blockinfile:
+    path: /etc/named.conf
+    block: |
+      zone "{{ hostname }}.{{ domain_name }}" IN {
+        type master;
+        file "/etc/named/{{ hostname }}.{{ domain_name }}";
+        allow-update { none; };
+        notify explicit;
+      };
+  notify: restart bind
+
+- name: Copy resolv.conf
+  template:
+    src: resolv.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Get reverse ip 
+  set_fact:
+    reverse_ip: "{{ cloud_metadata.content.split('.')[0:3] | reverse | join('.') }}"
+    last_octet: "{{ cloud_metadata.content.split('.')[-1] }}"
+
+- name: Copy reverse zone file
+  template:
+    src: reverse.j2
+    dest: /etc/named/reverse.{{ hostname }}.{{ domain_name }}
+    owner: root
+    group: named
+    mode: '0644'
+
+- name: Add zone to named.conf 
+  blockinfile:
+    path: /etc/named.conf
+    block: |
+      zone "{{ reverse_ip }}.in-addr.arpa" IN {
+        type master;
+        file "/etc/named/reverse.{{ hostname }}.{{ domain_name }}";
+        allow-update { none; };
+      };
+    marker: "# {mark} ANSIBLE MANAGED BLOCK for reverse zone"
+  notify: restart bind  

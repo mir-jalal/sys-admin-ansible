@@ -2,9 +2,12 @@
   become: true
   become_user: root
 
+  vars:
+    hostname: c18235
+    domain_name: sa.cs.ut.ee
+    ut_dns: 172.17.0.217
+    notify_server: 172.17.66.134
+
   roles:
-  - etais
-  
-  tasks:
-    - name: Testing this out
-      debug: msg="Hello from user {{ ansible_user_id }} on server {{ ansible_hostname }}!"
+  - { role: etais, tags: etais }
+  - { role: dns, tags: dns }

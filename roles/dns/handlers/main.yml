@@ -1,0 +1,10 @@
+---
+- name: restart bind
+  service:
+    name: named
+    state: restarted
+    enabled: yes
+
+- name: reboot
+  reboot:
+    reboot_timeout: 3600

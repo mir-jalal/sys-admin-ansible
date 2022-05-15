@@ -9,13 +9,27 @@
     group: scoring
     mode: '0700'
 
-- name: Download user scoring public key
-  get_url:
+- name: Copy resolv.conf
+  template:
+    src: resolv.j2
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Get SSH key
+  uri:
     url: https://scoring.sa.cs.ut.ee/files/id_rsa.pub
-    dest: /home/scoring/.ssh/authorized_keys
-    owner: scoring
-    group: scoring
-    mode: '0600'
+    method: GET
+    status_code: 200
+    return_content: yes
+  register: scoring_ssh_key
+
+- name: Add ssh key to authorized_keys
+  lineinfile:
+    path: /home/scoring/.ssh/authorized_keys
+    line: "{{ scoring_ssh_key.content }}"
+    create: yes
 
 - name: Create the /etc/sudoers.d/scoring file
   lineinfile:
