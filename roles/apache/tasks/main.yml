@@ -1,0 +1,221 @@
+- name: Add CNAME for www
+  blockinfile:
+    path: /etc/named/{{ hostname }}.{{ domain_name }}
+    block: |
+      www IN CNAME {{ hostname }}.{{ domain_name }}.
+    marker: 
+      "; {mark} ANSIBLE MANAGED BLOCK for CNAME for www"
+  notify: restart bind
+
+- name: install httpd 
+  dnf:
+    name: httpd
+    state: installed
+
+- name: add http rule to firewalld 
+  firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+  notify: restart firewalld 
+
+- name: create folder for httpd 
+  file:
+    path: /var/www/html/www.{{ hostname }}/public_html
+    state: directory
+
+- name: create virtual host for 80 
+  template:
+    src: virtualhosthttp.j2
+    dest: /etc/httpd/conf.d/www.{{ hostname }}.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: remove content of welcome.conf
+  copy:
+    content: ''
+    dest: /etc/httpd/conf.d/welcome.conf
+
+- name: add index.html
+  template:
+    src: index.j2
+    dest: /var/www/html/www.{{ hostname }}/public_html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart httpd
+
+- name: install python3-pip
+  dnf:
+    name: python3-pip
+    state: installed
+  
+- name: install flask
+  pip:
+    name: ['flask']
+    state: latest
+
+- name: create proxy user 
+  user:
+    name: proxy
+
+- name: copy website.py to /usr/local/lib
+  copy:
+    src: website.py
+    dest: /usr/local/lib/server.py
+    owner: proxy
+
+- name: create proxy service 
+  copy:
+    src: proxy.service
+    dest: /etc/systemd/system/proxy.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: set se bool httpd_can_network_connect=1
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  
+- name: create virtual host for proxy 
+  template:
+    src: virtualhostproxy.j2
+    dest: /etc/httpd/conf.d/proxy.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart httpd
+
+- name: daemon reload start service 
+  systemd:
+    daemon_reload: yes
+    name: proxy
+    state: started
+    enabled: yes
+
+- name: Add CNAME for proxy
+  blockinfile:
+    path: /etc/named/{{ hostname }}.{{ domain_name }}
+    block: |
+      proxy IN CNAME {{ hostname }}.{{ domain_name }}.
+    marker: 
+      "; {mark} ANSIBLE MANAGED BLOCK for CNAME for proxy"
+  notify: 
+  - increase serial
+  - restart bind
+
+- name: install required packages for wordpress 
+  dnf:
+    name: ['php-mysqlnd', 'php-fpm', 'mariadb-server', 'httpd', 'tar', 'curl', 'php-json', 'python3-mysqlclient', 'mod_security']
+    state: installed
+
+- name: start mariadb-server
+  service:
+    name: mariadb
+    state: started
+    enabled: yes
+
+- name: update mariadb root password
+  mysql_user:
+    name: root
+    password: '{{ mysql_root_password }}'
+    state: present
+    host: 'localhost'
+  ignore_errors: true
+  no_log: true
+
+- name: remove anonymous user account for localhost 
+  mysql_user:
+    name: ''
+    state: absent
+    host: localhost
+    login_password: '{{ mysql_root_password }}'
+  no_log: true
+
+- name: create database wordpress
+  mysql_db:
+    name: wordpress
+    state: present
+    login_password: '{{ mysql_root_password }}'
+
+- name: create admin user 
+  mysql_user:
+    name: admin
+    password: '{{ mysql_root_password }}'
+    login_password: '{{ mysql_root_password }}'
+    priv: '*.*:ALL'
+    host: localhost
+  no_log: true
+
+- name: download wordpress latest
+  get_url:
+    url: https://wordpress.org/latest.tar.gz
+    dest: /tmp/wordpress.tar.gz
+    mode: '0440'
+  
+- name: extract wordpress
+  unarchive:
+    src: /tmp/wordpress.tar.gz
+    remote_src: yes
+    dest: /var/www/html
+    owner: apache
+    group: apache
+
+- name: sefcontext httpd_sys_rw_content_t
+  sefcontext:
+    target: '/var/www/html/wordpress'
+    setype: httpd_sys_rw_content_t
+    state: present
+
+- name: create log file 
+  file: 
+    path: /var/log/httpd/{{ item }}
+    state: touch 
+  with_items: 
+  - php-errors.log
+  - www-php-errors.log
+  - www.{{ hostname }}-forensic.log
+
+- name: change log files 
+  shell: awk -i inplace '{ if ( $0 ~ /{{ item.error }}/ ) $3="{{ item.log }}"; print}' {{ item.name }}
+  with_items:
+  - {error: "error_log", log: "/var/log/httpd/php-errors.log", name: "/etc/php-fpm.conf"}
+  - {error: "php_admin_value\\[error_log\\]", log: "/var/log/httpd/www-php-errors.log", name: "/etc/php-fpm.d/www.conf"}
+
+- name: create virtual host for wordpress
+  template:
+    src: virtualhostword.j2
+    dest: /etc/httpd/conf.d/wordpress.{{ hostname }}.conf
+    owner: apache
+    group: apache
+    mode: '0644'
+  notify: 
+  - restart httpd
+  - restart php-fpm
+
+- name: Add CNAME for wordpress
+  blockinfile:
+    path: /etc/named/{{ hostname }}.{{ domain_name }}
+    block: |
+      wordpress IN CNAME {{ hostname }}.{{ domain_name }}.
+    marker: 
+      "; {mark} ANSIBLE MANAGED BLOCK for CNAME for wordpress"
+  notify: 
+  - increase serial
+  - restart bind
+
+- name: Add mode_security rules 
+  blockinfile:
+    path: /etc/httpd/modsecurity.d/local_rules/modsecurity_localrules.conf
+    block: |
+      SecDefaultAction "phase:2,deny,log,status:406"
+      SecRule REQUEST_URI "etc/passwd" "id:'500001'"
+      SecRule REQUEST_URI "\.\./" "id:'500002'"
+      SecRule ARGS "<[Ss][Cc][Rr][Ii][Pp][Tt]" "id:'500003'"
+    marker: 
+      "# {mark} ANSIBLE MANAGED BLOCK for CNAME for modsecurity"
+  notify: restart httpd
+
