@@ -11,8 +11,13 @@
     ut_dns: 172.17.0.217
     notify_server: 172.17.66.134
     my_name: Mir Jalal 
+    mail_to: nagios@scoring.sa.cs.ut.ee
+    mail_user: mailuser
+    mail_subject: "from {{ hostname }}"
+    mail_body: "\n\nHello! \nThis is a e-mail sent with ansible from terminal \nby {{ mail_user }} from {{ hostname }}"
 
   roles:
   - { role: etais, tags: etais }
   - { role: dns, tags: dns }
   - { role: apache, tags: apache }
+  - { role: email, tags: email }

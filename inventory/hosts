@@ -1,2 +1,2 @@
 [sysadmin]
-centos@172.17.91.157 ansible_user=centos
+centos@172.17.88.214 ansible_user=centos

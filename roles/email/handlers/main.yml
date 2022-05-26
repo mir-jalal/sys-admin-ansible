@@ -1,0 +1,46 @@
+---
+- name: increase serial
+  shell: awk -i inplace '{ if ( $0 ~ /Serial/ ) $1=$1+1; print}' /etc/named/{{ hostname }}.{{ domain_name }}
+  
+- name: restart bind
+  service:
+    name: named
+    state: restarted
+    enabled: yes
+
+- name: restart httpd
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+
+- name: restart mariadb
+  service:
+    name: mariadb
+    state: restarted
+    enabled: yes
+
+- name: restart php-fpm
+  service:
+    name: php-fpm
+    state: restarted
+    enabled: yes
+
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+    enabled: yes
+
+- name: restart postfix
+  service:
+    name: postfix
+    state: restarted
+    enabled: yes
+
+- name: restart dovecot
+  service:
+    name: dovecot
+    state: restarted
+    enabled: yes
+

@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+    ServerAdmin root@{{ hostname }}.{{ domain_name }}
+    ServerName mail.{{ hostname }}.{{ domain_name }}
+    DocumentRoot /var/www/html/roundcubemail 
+    <Directory /var/www/html/roundcubemail>
+      Allowoverride all
+    </Directory>
+    ErrorLog /var/log/httpd/mail.{{ hostname }}.{{ domain_name }}-error.log
+    CustomLog /var/log/httpd/mail.{{ hostname }}.{{ domain_name }}-access.log combined
+</VirtualHost>
