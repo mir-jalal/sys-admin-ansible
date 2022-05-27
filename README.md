@@ -42,6 +42,8 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 - [unarchive](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html)
 - [shell](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/shell_module.html)
 - [sefcontext](https://docs.ansible.com/ansible/latest/collections/community/general/sefcontext_module.html)
+- [meta](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html)
+- [pear](https://docs.ansible.com/ansible/latest/collections/community/general/pear_module.html)
 
 > You might need to run `ansible-galaxy collection install ansible.posix` to install the module in `posix`.
 > You might need to run `ansible-galaxy collection install community.mysql` to install the module in `mysql`.
@@ -83,6 +85,18 @@ sys-admin-ansible
 │   │       ├── resolv.j2
 │   │       ├── reverse.j2
 │   │       └── zonefile.j2
+│   ├── email
+│   │   ├── files
+│   │   │   ├── 10-master.conf
+│   │   │   ├── 15-mailboxes.conf
+│   │   │   └── master.cf
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       ├── config.inc.php.j2
+│   │       └── virtualhostmail.j2
 │   └── etais
 │       ├── tasks
 │       │   └── main.yml
