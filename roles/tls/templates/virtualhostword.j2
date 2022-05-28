@@ -1,0 +1,12 @@
+<VirtualHost *:443>
+    ServerName wordpress.{{ hostname }}.{{ domain_name }}
+    DocumentRoot /var/www/html/wordpress
+    LogLevel debug
+    ErrorLog /var/log/httpd/www-error.log
+    CustomLog /var/log/httpd/www-access.log combined
+
+    SSLEngine on
+    SSLCertificateFile /etc/pki/tls/certs/server.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/server.key
+    SSLCertificateChainFile /etc/pki/tls/certs/cacert.crt
+</VirtualHost>

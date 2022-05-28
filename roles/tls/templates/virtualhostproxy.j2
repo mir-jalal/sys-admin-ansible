@@ -1,0 +1,16 @@
+<VirtualHost *:443>
+    ServerName proxy.{{ hostname }}.{{ domain_name }} 
+    # ServerName sets the name to listen for with requests
+    ErrorLog /var/log/httpd/proxy-error_log
+    CustomLog /var/log/httpd/proxy-access_log common
+
+    ProxyPreserveHost On
+
+    ProxyPass / http://localhost:5000/
+    ProxyPassReverse / http://localhost:5000/
+
+    SSLEngine on
+    SSLCertificateFile /etc/pki/tls/certs/server.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/server.key
+    SSLCertificateChainFile /etc/pki/tls/certs/cacert.crt
+</VirtualHost>

@@ -1,0 +1,106 @@
+---
+- name: copy tls files
+  copy: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: apache
+    group: apache 
+  with_items:
+  - src: cert.crt
+    dest: /etc/pki/tls/certs/server.crt
+  - src: key.key
+    dest: /etc/pki/tls/private/server.key
+  - src: ca.crt 
+    dest: /etc/pki/tls/certs/cacert.crt
+  notify: restart apache 
+
+- name: copy new virtual host files 
+  template:
+    src: "{{ item.src }}"
+    dest: /etc/httpd/conf.d/{{item.dest}}.{{ hostname }}.conf
+    owner: apache
+    group: apache
+    mode: '0644'
+  with_items:
+  - src: virtualhostword.j2
+    dest: wordpress
+  - src: virtualhosthttp.j2
+    dest: http
+  - src: virtualhostproxy.j2
+    dest: proxy
+  notify: restart apache 
+  
+- name: install mod_ssl and cyrus-sasl-plain
+  dnf:
+    name: ['mod_ssl', 'cyrus-sasl-plain']
+    state: installed
+  notify: restart apache 
+
+- name: add https rule to firewalld 
+  firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+  notify: restart firewalld 
+
+- name: change parameters in /etc/postfix/main.cf
+  shell: |
+    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_security_level / ) $0="smtpd_tls_security_level = may"; print}' /etc/postfix/main.cf
+    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_cert_file/ ) $0="smtpd_tls_cert_file=/etc/pki/tls/certs/server.crt"; print}' /etc/postfix/main.cf
+    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_key_file/ ) $0="smtpd_tls_key_file=/etc/pki/tls/private/server.key"; print}' /etc/postfix/main.cf
+    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_loglevel / ) $0="smtpd_tls_loglevel = 1"; print}' /etc/postfix/main.cf
+    awk -i inplace '{ if ( $0 ~ /^smtp_tls_loglevel / ) $0="smtp_tls_loglevel = 1"; print}' /etc/postfix/main.cf
+  notify: restart postfix
+
+- name: make sure parameters are valid 
+  lineinfile:
+    dest: /etc/postfix/main.cf
+    line: "{{ item }}"
+    state: present
+    create: yes
+  with_items: 
+  - smtpd_tls_security_level = may
+  - smtpd_tls_cert_file=/etc/pki/tls/certs/server.crt
+  - smtpd_tls_key_file=/etc/pki/tls/private/server.key
+  - smtpd_tls_loglevel = 1
+  - smtp_tls_loglevel = 1
+  notify: restart postfix
+
+- name: add 465 and 993 to firewalld 
+  firewalld:
+    permanent: yes
+    state: enabled
+    port: "{{ item }}/tcp"
+  with_items: 
+  - 465
+  - 993
+  notify: restart firewalld 
+
+- name: copy master.cf 
+  copy:
+    src: master.cf
+    dest: /etc/postfix/master.cf
+  notify: restart postfix
+
+- name: change parameters for dovecot
+  shell: awk -i inplace '{ if ( $0 ~ /^{{ item.key }} / ) $0="{{ item.value }}"; print}' /etc/dovecot/conf.d/10-ssl.conf
+  with_items:
+  - key: "ssl"
+    value: "ssl = yes"
+  - key: "ssl_cert"
+    value: "ssl_cert = </etc/pki/tls/certs/server.crt"
+  - key: "ssl_key"
+    value: "ssl_key = </etc/pki/tls/private/server.key"
+  notify: restart dovecot
+
+- name: make sure parameters are valid 
+  lineinfile:
+    dest: /etc/dovecot/conf.d/10-ssl.conf
+    line: "{{ item }}"
+    state: present
+    create: yes
+  with_items: 
+  - ssl = yes
+  - ssl_cert = </etc/pki/tls/certs/server.crt
+  - ssl_key = </etc/pki/tls/private/server.key
+  notify: restart dovecot

@@ -74,7 +74,7 @@
 
 - name: change parameters
   shell: |
-    awk -i inplace '{ if ( $0 ~ /^{{ item.key }}/ ) $0="{{ item.value }}"; print}' {{ item.filename }}
+    awk -i inplace '{ if ( $0 ~ /^{{ item.key }} / ) $0="{{ item.value }}"; print}' {{ item.filename }}
   with_items:
     - key: "mail_debug"
       value: "mail_debug = yes"

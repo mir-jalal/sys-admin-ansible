@@ -1,0 +1,24 @@
+---
+- name: restart apache
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+    enabled: yes
+
+- name: restart postfix
+  service:
+    name: postfix
+    state: restarted
+    enabled: yes
+
+- name: restart dovecot
+  service:
+    name: dovecot
+    state: restarted
+    enabled: yes
