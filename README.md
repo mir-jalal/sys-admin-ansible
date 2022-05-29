@@ -44,10 +44,14 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 - [sefcontext](https://docs.ansible.com/ansible/latest/collections/community/general/sefcontext_module.html)
 - [meta](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/meta_module.html)
 - [pear](https://docs.ansible.com/ansible/latest/collections/community/general/pear_module.html)
+- [docker_image](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_image_module.html)
+- [docker_container](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html)
+- [docker_network](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_network_module.html)
 
 > You might need to run `ansible-galaxy collection install ansible.posix` to install the module in `posix`.
 > You might need to run `ansible-galaxy collection install community.mysql` to install the module in `mysql`.
 > You might need to run `ansible-galaxy collection install community.general` to install the module in `general`.
+> You might need to run `ansible-galaxy collection install community.docker` to install the module in `docker`.
 
 ## Playbooks
 

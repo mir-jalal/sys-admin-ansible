@@ -6,6 +6,6 @@
 
         ProxyPreserveHost On
 
-        ProxyPass / http://localhost:5000/
-        ProxyPassReverse / http://localhost:5000/
+        ProxyPass / http://{{ docker.container_ip }}:5000/
+        ProxyPassReverse / http://{{ docker.container_ip }}:5000/
     </VirtualHost>

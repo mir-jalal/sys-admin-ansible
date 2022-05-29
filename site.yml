@@ -16,6 +16,12 @@
     mail_subject: "from {{ hostname }}"
     mail_body: "\n\nHello! \nThis is a e-mail sent with ansible from terminal \nby {{ mail_user }} from {{ hostname }}"
     kv_pass: "random123"
+    docker: 
+      network: 
+        subnet: "192.169.67.0/24"
+        iprange: "192.169.67.0/24"
+        gateway: "192.169.67.254"
+      container_ip: "192.169.67.2"
 
   roles:
   # - { role: etais, tags: etais }
@@ -24,5 +30,5 @@
   # - { role: email, tags: email }
   # - { role: tls, tags: tls }
   # - { role: fs, tags: fs }
-  - { role: docker, tags: docker }
-  # - { role: container, tags: container }
+  # - { role: docker, tags: docker }
+  - { role: container, tags: container }
