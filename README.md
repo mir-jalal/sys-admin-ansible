@@ -73,8 +73,24 @@ sys-admin-ansible
 │   │       ├── forensic.j2
 │   │       ├── index.j2
 │   │       ├── virtualhosthttp.j2
-│   │       ├── virtualhostproxy.j2
 │   │       └── virtualhostword.j2
+│   ├── container
+│   │   ├── files
+│   │   │   ├── Dockerfile
+│   │   │   └── server.py
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── virtualhostproxy.j2
+│   ├── devops
+│   │   ├── files
+│   │   │   └── traefik.toml
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   └── tasks
+│   │       └── main.yml
 │   ├── dns
 │   │   ├── files
 │   │   │   ├── 70-ipv6.conf
@@ -89,6 +105,11 @@ sys-admin-ansible
 │   │       ├── resolv.j2
 │   │       ├── reverse.j2
 │   │       └── zonefile.j2
+│   ├── docker
+│   │   ├── files
+│   │   │   └── daemon.json
+│   │   └── tasks
+│   │       └── main.yml
 │   ├── email
 │   │   ├── files
 │   │   │   ├── 10-master.conf
@@ -101,13 +122,34 @@ sys-admin-ansible
 │   │   └── templates
 │   │       ├── config.inc.php.j2
 │   │       └── virtualhostmail.j2
-│   └── etais
+│   ├── etais
+│   │   ├── tasks
+│   │   │   └── main.yml
+│   │   └── templates
+│   │       └── resolv.j2
+│   ├── fs
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   └── tasks
+│   │       └── main.yml
+│   └── tls
+│       ├── files
+│       │   ├── ca.crt
+│       │   ├── cert.crt
+│       │   ├── key.key
+│       │   └── master.cf
+│       ├── handlers
+│       │   └── main.yml
 │       ├── tasks
 │       │   └── main.yml
 │       └── templates
-│           └── resolv.j2
+│           ├── virtualhosthttp.j2
+│           ├── virtualhostproxy.j2
+│           └── virtualhostword.j2
 ├── site.yml
 ├── sys-admin-ansible.iml
 └── vault.yml
+
+40 directories, 52 files
 ```
 

@@ -1,0 +1,17 @@
+[global]
+  checkNewVersion = true
+  sendAnonymousUsage = true
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+
+[log]
+
+[api]
+  insecure = true
+  dashboard = true
+
+[ping]
+
+[providers.docker]
