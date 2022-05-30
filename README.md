@@ -47,11 +47,18 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 - [docker_image](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_image_module.html)
 - [docker_container](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html)
 - [docker_network](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_network_module.html)
+- [k8s](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/k8s_module.html)
 
 > You might need to run `ansible-galaxy collection install ansible.posix` to install the module in `posix`.
 > You might need to run `ansible-galaxy collection install community.mysql` to install the module in `mysql`.
 > You might need to run `ansible-galaxy collection install community.general` to install the module in `general`.
 > You might need to run `ansible-galaxy collection install community.docker` to install the module in `docker`.
+> You might need to run following command to install the module in `kubernetes`:
+> ```shell
+> ansible-galaxy collection install community.kubernetes
+> ansible-galaxy collection install cloud.common
+> ansible-galaxy collection install kubernetes.core
+> ```
 
 ## Playbooks
 
@@ -73,6 +80,7 @@ sys-admin-ansible
 │   │       ├── forensic.j2
 │   │       ├── index.j2
 │   │       ├── virtualhosthttp.j2
+│   │       ├── virtualhostproxy.j2
 │   │       └── virtualhostword.j2
 │   ├── container
 │   │   ├── files
@@ -132,6 +140,18 @@ sys-admin-ansible
 │   │   │   └── main.yml
 │   │   └── tasks
 │   │       └── main.yml
+│   ├── k8s
+│   │   ├── files
+│   │   └── tasks
+│   │       └── main.yml
+│   ├── kubernetes
+│   │   ├── files
+│   │   │   ├── kubernetes.repo
+│   │   │   └── traefik-config.yaml
+│   │   ├── handlers
+│   │   │   └── main.yml
+│   │   └── tasks
+│   │       └── main.yml
 │   └── tls
 │       ├── files
 │       │   ├── ca.crt
@@ -150,6 +170,6 @@ sys-admin-ansible
 ├── sys-admin-ansible.iml
 └── vault.yml
 
-40 directories, 52 files
+47 directories, 58 files
 ```
 

@@ -33,3 +33,5 @@
   - { role: docker, tags: docker }
   - { role: container, tags: container }
   - { role: devops, tags: devops }
+  - { role: kubernetes, tags: kubernetes }
+  - { role: k8s, tags: k8s }

@@ -1,0 +1,43 @@
+---
+- name: add 6443 to firewalld 
+  firewalld:
+    permanent: yes
+    state: enabled
+    port: "6443/tcp"
+  notify: restart firewalld
+
+- name: create folder 
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:   
+    - /var/lib/rancher/k3s/server/manifests
+    - /root/.kube
+
+- name: copy traefik-config 
+  copy: 
+    src: traefik-config.yaml
+    dest: /var/lib/rancher/k3s/server/manifests/
+    owner: root
+    group: root
+    mode: 0755
+
+- name: install k3s 
+  shell: 
+    warn: false
+    cmd: "curl -sfL https://get.k3s.io | sh -s -"
+  register: k3s_install
+  changed_when: "'No change detected so skipping service start' not in k3s_install.stdout"
+  
+- name: install packages
+  pip: 
+    name: ['openshift', 'pyyaml', 'kubernetes']
+    state: present
+
+- name: copy config 
+  copy: 
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: /root/.kube/config
+    remote_src: yes
+
+

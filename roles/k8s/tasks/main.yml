@@ -1,0 +1,72 @@
+--- 
+- name: create lab11 namespace 
+  kubernetes.core.k8s:
+    name: lab11
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: create deployment
+  kubernetes.core.k8s:
+    state: present 
+    generate_name: deployment-
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hw1 
+        namespace: lab11 
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: hw1
+        template:
+          metadata:
+            labels:
+              app: hw1
+          spec:
+            containers:
+            - name: hw1
+              image: "registry.hpc.ut.ee/sysadmincourse-dev/hello-world:1.0"
+              ports:
+              - containerPort: 5000
+              imagePullPolicy: Never
+
+- name: create a service
+  kubernetes.core.k8s:
+    state: present 
+    generate_name: service-
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hw1
+        namespace: lab11
+      spec:
+        type: NodePort
+        ports:
+        - port: 5000
+          targetPort: 80
+          protocol: TCP
+        selector:
+          app: hw1
+
+- name: create an ingress
+  kubernetes.core.k8s:
+    state: present 
+    generate_name: ingress-
+    definition:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: hw1
+        namespace: lab11
+        annotations:
+          kubernetes.io/ingress.class: "traefik"
+      spec:
+        defaultBackend:
+          service:
+            name: hw1
+            port:
+              number: 80
