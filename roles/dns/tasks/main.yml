@@ -3,7 +3,7 @@
   dnf:
     autoremove: yes
 
-- name: Add dns service
+- name: run dns service
   firewalld:
     service: dns
     permanent: yes
@@ -11,20 +11,13 @@
 
 - name: Add 8301/udp service
   firewalld:
-    port: 8301/udp
+    port: "{{ item }}"
     permanent: yes
     state: enabled
-
-- name: Add 8301/tcp service
-  firewalld:
-    port: 8301/tcp
-    permanent: yes
-    state: enabled
-
-- name: reload service firewalld
-  systemd:
-    name: firewalld
-    state: reloaded
+  with_items:
+  - 8301/udp
+  - 8301/tcp
+  notify: reload service firewalld
 
 - name: Disable IPv6
   copy:
@@ -36,17 +29,13 @@
 
 - name: Change net.ipv6.conf.default.disable_ipv6 to 1.
   sysctl:
-    name: net.ipv6.conf.default.disable_ipv6
+    name: "{{ item }}"
     value: '1'
     sysctl_file: /etc/sysctl.d/70-ipv6.conf
     reload: yes
-
-- name: Change net.ipv6.conf.all.disable_ipv6 to 1.
-  sysctl:
-    name: net.ipv6.conf.all.disable_ipv6
-    value: '1'
-    sysctl_file: /etc/sysctl.d/70-ipv6.conf
-    reload: yes
+  with_items:
+  - net.ipv6.conf.default.disable_ipv6
+  - net.ipv6.conf.all.disable_ipv6
 
 - name: Inserts into hostname
   template:

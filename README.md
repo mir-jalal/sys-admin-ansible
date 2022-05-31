@@ -50,9 +50,13 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 - [k8s](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/k8s_module.html)
 
 > You might need to run `ansible-galaxy collection install ansible.posix` to install the module in `posix`.
+>
 > You might need to run `ansible-galaxy collection install community.mysql` to install the module in `mysql`.
+>
 > You might need to run `ansible-galaxy collection install community.general` to install the module in `general`.
+>
 > You might need to run `ansible-galaxy collection install community.docker` to install the module in `docker`.
+>
 > You might need to run following command to install the module in `kubernetes`:
 > ```shell
 > ansible-galaxy collection install community.kubernetes

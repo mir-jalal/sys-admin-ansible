@@ -8,3 +8,8 @@
 - name: reboot
   reboot:
     reboot_timeout: 3600
+
+- name: reload service firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
