@@ -27,29 +27,10 @@
     name: postfix
     state: installed 
 
-- name: change parameters in /etc/postfix/main.cf
-  shell: |
-    awk -i inplace '{ if ( $0 ~ /^inet_protocols / ) $3="ipv4"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^myhostname / ) $3="mail.{{ hostname }}.{{ domain_name }}"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^inet_interfaces / ) $3="all"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^mydestination / ) $0="mydestination = mail.{{ hostname }}.{{ domain_name }} localhost.{{ hostname }}.{{ domain_name }}, localhost, {{ hostname }}.{{ domain_name }}"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^mynetworks_style / ) $3="host"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^mynetworks / ) $0="#"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^relayhost / ) $0="#"; print}' /etc/postfix/main.cf
-  notify: restart postfix
-
-- name: make sure parameters are valid 
-  lineinfile:
+- name: copy main.cf
+  template:
+    src: main.cf.j2
     dest: /etc/postfix/main.cf
-    line: "{{ item }}"
-    state: present
-    create: yes
-  with_items: 
-  - inet_protocols = ipv4
-  - myhostname = {{ hostname }}.{{ domain_name }}
-  - inet_interfaces = all
-  - mydestination = mail.{{ hostname }}.{{ domain_name }} localhost.{{ hostname }}.{{ domain_name }}, localhost, {{ hostname }}.{{ domain_name }}
-  - mynetworks_style = host
   notify: restart postfix
 
 - name: Add user mailuser
@@ -73,64 +54,22 @@
     state: installed
 
 - name: change parameters
-  shell: |
-    awk -i inplace '{ if ( $0 ~ /^{{ item.key }} / ) $0="{{ item.value }}"; print}' {{ item.filename }}
+  copy: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
   with_items:
-    - key: "mail_debug"
-      value: "mail_debug = yes"
-      filename: /etc/dovecot/conf.d/10-logging.conf
-    - key: "protocols"
-      value: "protocols = imap lmtp"
-      filename: /etc/dovecot/dovecot.conf
-    - key: "auth_mechanisms"
-      value: "auth_mechanisms = plain login"
-      filename: /etc/dovecot/conf.d/10-auth.conf
-    - key: "auth_username_format"
-      value: "auth_username_format = %n"
-      filename: /etc/dovecot/conf.d/10-auth.conf
-    - key: "mail_location"
-      value: "mail_location = maildir:~/mail"
-      filename: /etc/dovecot/conf.d/10-mail.conf
-    - key: "mail_privileged_group"
-      value: "mail_privileged_group = mail"
-      filename: /etc/dovecot/conf.d/10-mail.conf
-    - key: "disable_plaintext_auth"
-      value: "disable_plaintext_auth = no"
-      filename: /etc/dovecot/conf.d/10-auth.conf
-    - key: "ssl"
-      value: "ssl = no"
-      filename: /etc/dovecot/conf.d/10-ssl.conf
-  notify: restart dovecot
-
-- name: copy 15-mailboxes.conf
-  copy:
-    src: 15-mailboxes.conf
+  - src: 10-logging.conf
+    dest: /etc/dovecot/conf.d/10-logging.conf
+  - src: dovecot.conf
+    dest: /etc/dovecot/dovecot.conf
+  - src: 10-auth.conf
+    dest: /etc/dovecot/conf.d/10-auth.conf
+  - src: 10-mail.conf
+    dest: /etc/dovecot/conf.d/10-mail.conf
+  - src: 10-ssl.conf
+    dest: /etc/dovecot/conf.d/10-ssl.conf
+  - src: 15-mailboxes.conf
     dest: /etc/dovecot/conf.d/15-mailboxes.conf
-  notify: restart dovecot
-
-- name: make sure parameters are valid 
-  lineinfile:
-    dest: "{{ item.filename }}"
-    line: "{{ item.line }}"
-    state: present
-    create: yes
-  with_items: 
-  - line: "mail_debug = yes"
-    filename: /etc/dovecot/conf.d/10-logging.conf
-  - line: "protocols = imap lmtp"
-    filename: /etc/dovecot/dovecot.conf
-  - line: "auth_mechanisms = plain login"
-    filename: /etc/dovecot/conf.d/10-auth.conf
-  - line: "auth_username_format = %n"
-    filename: /etc/dovecot/conf.d/10-auth.conf
-  - line: "mail_location = maildir:~/mail"
-    filename: /etc/dovecot/conf.d/10-mail.conf
-  - line: "mail_privileged_group = mail"
-    filename: /etc/dovecot/conf.d/10-mail.conf
-  - line: "disable_plaintext_auth = no"
-    filename: /etc/dovecot/conf.d/10-auth.conf
-  - line: "ssl = no"
-    filename: /etc/dovecot/conf.d/10-ssl.conf  
   notify: restart dovecot
 
 - name: add user dovecot to mail group
@@ -156,11 +95,6 @@
   - 25
   - 143
   notify: restart firewalld 
-
-- name: change parameters in /etc/postfix/main.cf
-  shell: |
-    awk -i inplace '{ if ( $0 ~ /^mailbox_transport / ) $0="mailbox_transport = lmtp:unix:private/dovecot-lmtp"; print}' /etc/postfix/main.cf
-  notify: restart postfix
 
 - name: copy master.cf 
   copy:

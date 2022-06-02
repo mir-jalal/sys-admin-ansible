@@ -44,14 +44,11 @@
     owner: root
     group: root
     mode: '0644'
-
-- name: Inserts into hosts
-  template:
-    src: hosts.j2
+  with_items: 
+  - src: hostname.j2 
+    dest: /etc/hostname 
+  - src: hosts.j2
     dest: /etc/hosts
-    owner: root
-    group: root
-    mode: '0644'
   notify: reboot
 
 - name: Install named 

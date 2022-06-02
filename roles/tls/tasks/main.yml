@@ -43,27 +43,10 @@
     state: enabled
   notify: restart firewalld 
 
-- name: change parameters in /etc/postfix/main.cf
-  shell: |
-    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_security_level / ) $0="smtpd_tls_security_level = may"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_cert_file/ ) $0="smtpd_tls_cert_file=/etc/pki/tls/certs/server.crt"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_key_file/ ) $0="smtpd_tls_key_file=/etc/pki/tls/private/server.key"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^smtpd_tls_loglevel / ) $0="smtpd_tls_loglevel = 1"; print}' /etc/postfix/main.cf
-    awk -i inplace '{ if ( $0 ~ /^smtp_tls_loglevel / ) $0="smtp_tls_loglevel = 1"; print}' /etc/postfix/main.cf
-  notify: restart postfix
-
 - name: make sure parameters are valid 
-  lineinfile:
+  template:
+    src: main.cf.j2
     dest: /etc/postfix/main.cf
-    line: "{{ item }}"
-    state: present
-    create: yes
-  with_items: 
-  - smtpd_tls_security_level = may
-  - smtpd_tls_cert_file=/etc/pki/tls/certs/server.crt
-  - smtpd_tls_key_file=/etc/pki/tls/private/server.key
-  - smtpd_tls_loglevel = 1
-  - smtp_tls_loglevel = 1
   notify: restart postfix
 
 - name: add 465 and 993 to firewalld 
@@ -80,27 +63,10 @@
   copy:
     src: master.cf
     dest: /etc/postfix/master.cf
-  notify: restart postfix
+  notify: restart postfix  
 
-- name: change parameters for dovecot
-  shell: awk -i inplace '{ if ( $0 ~ /^{{ item.key }} / ) $0="{{ item.value }}"; print}' /etc/dovecot/conf.d/10-ssl.conf
-  with_items:
-  - key: "ssl"
-    value: "ssl = yes"
-  - key: "ssl_cert"
-    value: "ssl_cert = </etc/pki/tls/certs/server.crt"
-  - key: "ssl_key"
-    value: "ssl_key = </etc/pki/tls/private/server.key"
-  notify: restart dovecot
-
-- name: make sure parameters are valid 
-  lineinfile:
+- name: update 10-ssl.conf
+  copy:
+    src: 10-ssl.conf 
     dest: /etc/dovecot/conf.d/10-ssl.conf
-    line: "{{ item }}"
-    state: present
-    create: yes
-  with_items: 
-  - ssl = yes
-  - ssl_cert = </etc/pki/tls/certs/server.crt
-  - ssl_key = </etc/pki/tls/private/server.key
   notify: restart dovecot

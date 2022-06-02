@@ -1,6 +1,7 @@
 - name: Add user scoring
   user:
     name: scoring
+    
 - name: Create .ssh directory
   file:
     path: /home/scoring/.ssh

@@ -131,17 +131,9 @@
     state: present
     
 - name: add smb block to /etc/samba/smb.conf
-  blockinfile:
-    path: /etc/samba/smb.conf
-    block: |
-      [smb]
-        comment = Samba share for SA lab
-        valid users = @samba_group
-        path = /shares/samba
-        browsable =yes
-        writable = yes
-    marker: 
-      "# {mark} ANSIBLE MANAGED BLOCK for smb"
+  copy:
+    dest: /etc/samba/smb.conf
+    src: smb.conf 
   notify: 
   - restart smb
 

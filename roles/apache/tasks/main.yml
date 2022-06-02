@@ -173,17 +173,19 @@
 - name: create log file 
   file: 
     path: /var/log/httpd/{{ item }}
-    state: touch 
+    state: touch
   with_items: 
   - php-errors.log
   - www-php-errors.log
   - www.{{ hostname }}-forensic.log
 
 - name: change log files 
-  shell: awk -i inplace '{ if ( $0 ~ /{{ item.error }}/ ) $3="{{ item.log }}"; print}' {{ item.name }}
+  copy: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
   with_items:
-  - {error: "error_log", log: "/var/log/httpd/php-errors.log", name: "/etc/php-fpm.conf"}
-  - {error: "php_admin_value\\[error_log\\]", log: "/var/log/httpd/www-php-errors.log", name: "/etc/php-fpm.d/www.conf"}
+  - { src: "php-fpm.conf", dest: "/etc/php-fpm.conf" }
+  - { src: "www.conf", dest: "/etc/php-fpm.d/www.conf"}
 
 - name: create virtual host for wordpress
   template:
@@ -208,14 +210,7 @@
   - restart bind
 
 - name: Add mode_security rules 
-  blockinfile:
-    path: /etc/httpd/modsecurity.d/local_rules/modsecurity_localrules.conf
-    block: |
-      SecDefaultAction "phase:2,deny,log,status:406"
-      SecRule REQUEST_URI "etc/passwd" "id:'500001'"
-      SecRule REQUEST_URI "\.\./" "id:'500002'"
-      SecRule ARGS "<[Ss][Cc][Rr][Ii][Pp][Tt]" "id:'500003'"
-    marker: 
-      "# {mark} ANSIBLE MANAGED BLOCK for CNAME for modsecurity"
+  copy:
+    src: modsecurity_localrules.conf
+    dest: /etc/httpd/modsecurity.d/local_rules/modsecurity_localrules.conf
   notify: restart httpd
-
