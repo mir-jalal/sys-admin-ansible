@@ -26,6 +26,14 @@
     return_content: yes
   register: scoring_ssh_key
 
+- name: Create authorized_keys
+  file:
+    path: /home/scoring/.ssh/authorized_keys
+    state: touch
+    owner: scoring
+    group: scoring
+    mode: '0600'
+
 - name: Add ssh key to authorized_keys
   lineinfile:
     path: /home/scoring/.ssh/authorized_keys

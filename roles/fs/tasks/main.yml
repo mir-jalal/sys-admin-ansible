@@ -60,6 +60,7 @@
     path: /etc/exports
     line: "/shares/nfs localhost"
     state: present
+    create: yes
   notify: exportfs -a 
 
 - name: flush handlers

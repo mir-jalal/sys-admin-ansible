@@ -58,6 +58,7 @@
     name: whoami
     image: registry.hpc.ut.ee/mirror/containous/whoami
     pull: yes 
+    restart_policy: always
 
 - name: docker run 
   docker_container:
@@ -66,6 +67,7 @@
     hostname: docker-lab
     pull: no
     networks_cli_compatible: yes
+    restart_policy: always
     networks:
     - name: docker_lab
       ipv4_address: "{{ docker.container_ip }}"

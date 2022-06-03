@@ -9,7 +9,7 @@
 
 - name: install httpd 
   dnf:
-    name: httpd
+    name: ["httpd", "mod_ssl"]
     state: installed
 
 - name: add http rule to firewalld 

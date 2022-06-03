@@ -46,4 +46,10 @@
     mode: '0644'
     remote_src: yes
 
+- name: start k3s
+  service:
+    name: k3s
+    state: restarted
+    enabled: yes
+    masked: no
 
