@@ -4,6 +4,7 @@
     name: named
     state: restarted
     enabled: yes
+    masked: no
 
 - name: reboot
   reboot:

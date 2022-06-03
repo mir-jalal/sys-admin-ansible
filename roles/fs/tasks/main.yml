@@ -45,6 +45,9 @@
   file: 
     path: "{{ item.path }}"
     state: directory
+    mode: 0755
+    owner: root
+    group: root
   with_items:
   - path: /lab7/fs-ext4
   - path: /lab7/fs-xfs
@@ -134,6 +137,9 @@
   copy:
     dest: /etc/samba/smb.conf
     src: smb.conf 
+    owner: root
+    group: root
+    mode: '0644'
   notify: 
   - restart smb
 

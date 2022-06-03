@@ -21,8 +21,15 @@
 
 - name: create folder for httpd 
   file:
-    path: /var/www/html/www.{{ hostname }}/public_html
+    path: "{{ item }}" 
     state: directory
+    mode: 0755
+    owner: apache
+    group: apache
+    recurse: yes
+  with_items:
+  - /var/www
+  - /var/www/html/www.{{ hostname }}/public_html
 
 - name: create virtual host for 80 
   template:
@@ -36,6 +43,9 @@
   copy:
     content: ''
     dest: /etc/httpd/conf.d/welcome.conf
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: add index.html
   template:
@@ -65,6 +75,8 @@
     src: website.py
     dest: /usr/local/lib/server.py
     owner: proxy
+    group: root 
+    mode: '0644'
 
 - name: create proxy service 
   copy:
@@ -95,6 +107,7 @@
     name: proxy
     state: started
     enabled: yes
+    masked: no
 
 - name: Add CNAME for proxy
   blockinfile:
@@ -117,6 +130,7 @@
     name: mariadb
     state: started
     enabled: yes
+    masked: no
 
 - name: update mariadb root password
   mysql_user:
@@ -174,6 +188,9 @@
   file: 
     path: /var/log/httpd/{{ item }}
     state: touch
+    mode: 0755
+    owner: root
+    group: root
   with_items: 
   - php-errors.log
   - www-php-errors.log
@@ -183,6 +200,9 @@
   copy: 
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
   with_items:
   - { src: "php-fpm.conf", dest: "/etc/php-fpm.conf" }
   - { src: "www.conf", dest: "/etc/php-fpm.d/www.conf"}
@@ -213,4 +233,7 @@
   copy:
     src: modsecurity_localrules.conf
     dest: /etc/httpd/modsecurity.d/local_rules/modsecurity_localrules.conf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart httpd

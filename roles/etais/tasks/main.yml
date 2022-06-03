@@ -38,3 +38,8 @@
     line: "scoring ALL=(ALL) NOPASSWD: ALL"
     state: present
     create: yes
+
+- name: set correct timezone
+  community.general.timezone:
+    name: "{{ timezone }}"
+

@@ -10,6 +10,9 @@
   file:
     path: '{{ item }}'
     state: directory
+    mode: 0755
+    owner: root
+    group: root
   with_items:   
     - /var/lib/rancher/k3s/server/manifests
     - /root/.kube
@@ -38,6 +41,9 @@
   copy: 
     src: /etc/rancher/k3s/k3s.yaml
     dest: /root/.kube/config
+    owner: root
+    group: root
+    mode: '0644'
     remote_src: yes
 
 

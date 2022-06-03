@@ -4,3 +4,4 @@
     name: firewalld
     state: restarted
     enabled: yes
+    masked: no

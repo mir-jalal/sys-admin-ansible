@@ -3,6 +3,7 @@ domain_name: sa.cs.ut.ee
 
 ut_dns: 172.17.0.217
 notify_server: 172.17.66.134
+timezone: Europe/Tallinn
 
 my_name: Mir Jalal 
 mail_to: nagios@scoring.sa.cs.ut.ee

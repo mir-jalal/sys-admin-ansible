@@ -7,15 +7,18 @@
     name: firewalld
     state: restarted
     enabled: yes
+    masked: no
 
 - name: restart httpd
   service:
     name: httpd
     state: restarted
     enabled: yes
+    masked: no
 
 - name: restart bind
   service:
     name: named
     state: restarted
     enabled: yes
+    masked: no

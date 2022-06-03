@@ -5,6 +5,7 @@
     dest: "{{ item.dest }}"
     owner: apache
     group: apache 
+    mode: '0644'
   with_items:
   - src: cert.crt
     dest: /etc/pki/tls/certs/server.crt
@@ -47,6 +48,9 @@
   template:
     src: main.cf.j2
     dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart postfix
 
 - name: add 465 and 993 to firewalld 
@@ -63,10 +67,16 @@
   copy:
     src: master.cf
     dest: /etc/postfix/master.cf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart postfix  
 
 - name: update 10-ssl.conf
   copy:
     src: 10-ssl.conf 
     dest: /etc/dovecot/conf.d/10-ssl.conf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart dovecot

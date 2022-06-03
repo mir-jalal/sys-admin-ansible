@@ -3,12 +3,17 @@
   file:
     path: /etc/docker
     state: directory
+    mode: 0755
+    owner: root
+    group: root
 
 - name: copy daemon.json 
   copy:
     src: daemon.json
     dest: /etc/docker/daemon.json
-    mode: 0644
+    owner: root
+    group: root
+    mode: '0644'
 
 - name: install yum-utils
   yum:
@@ -28,3 +33,4 @@
     name: docker
     state: restarted
     enabled: yes
+    masked: no

@@ -31,6 +31,9 @@
   template:
     src: main.cf.j2
     dest: /etc/postfix/main.cf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart postfix
 
 - name: Add user mailuser
@@ -57,6 +60,9 @@
   copy: 
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0644'
   with_items:
   - src: 10-logging.conf
     dest: /etc/dovecot/conf.d/10-logging.conf
@@ -100,6 +106,9 @@
   copy:
     src: master.cf
     dest: /etc/postfix/master.cf
+    owner: root
+    group: root
+    mode: '0644'
   notify: restart postfix
 
 - name: install epel-release and dnf-plugins-core
@@ -178,6 +187,7 @@
     dest: /var/www/html/roundcubemail
     owner: apache
     group: apache
+    mode: '0755'
 
 - name: sefcontext httpd_sys_rw_content_t
   sefcontext:

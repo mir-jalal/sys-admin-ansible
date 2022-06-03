@@ -4,21 +4,25 @@
     name: httpd
     state: restarted
     enabled: yes
+    masked: no
 
 - name: restart firewalld
   service:
     name: firewalld
     state: restarted
     enabled: yes
+    masked: no
 
 - name: restart postfix
   service:
     name: postfix
     state: restarted
     enabled: yes
+    masked: no
 
 - name: restart dovecot
   service:
     name: dovecot
     state: restarted
     enabled: yes
+    masked: no
