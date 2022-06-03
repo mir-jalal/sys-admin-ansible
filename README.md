@@ -173,7 +173,6 @@ sys-admin-ansible
 │   │   └── tasks
 │   │       └── main.yml
 │   ├── k8s
-│   │   ├── files
 │   │   └── tasks
 │   │       └── main.yml
 │   ├── kubernetes
@@ -210,5 +209,5 @@ sys-admin-ansible
 ├── waldur-create-vm.yml
 └── waldur-delete-vm.yml
 
-49 directories, 75 files
+48 directories, 75 files
 ```
