@@ -1,0 +1,40 @@
+hostname: c18235
+domain_name: sa.cs.ut.ee
+
+ut_dns: 172.17.0.217
+notify_server: 172.17.66.134
+
+my_name: Mir Jalal 
+mail_to: nagios@scoring.sa.cs.ut.ee
+mail_user: mailuser
+mail_subject: "from {{ hostname }}"
+mail_body: "\n\nHello! \nThis is a e-mail sent with ansible from terminal \nby {{ mail_user }} from {{ hostname }}"
+kv_pass: "random123"
+
+docker: 
+  network: 
+    subnet: "192.169.67.0/24"
+    iprange: "192.169.67.0/24"
+    gateway: "192.169.67.254"
+  container_ip: "192.169.67.2"
+
+api_url: https://api.etais.ee/api
+project_name: "{{ hostname | upper }}"
+instance_name: "{{ hostname | upper }}"
+offering_name: "Virtual machine in {{ instance_name }}"
+image_name: "LTAT.06.003"
+flavor_name: "m1.medium"
+subnet_name: "{{ hostname }}-sub-net"
+data_volume_type: "prod2"
+system_volume_type: "prod2"
+ssh_key_name: "hashimli-wsl"
+security_groups: 
+  - default 
+  - DNS 
+  - k3s
+  - nfs
+  - ping
+  - samba
+  - smtp-imap
+  - ssh
+  - web

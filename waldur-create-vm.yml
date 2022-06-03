@@ -1,0 +1,41 @@
+--- 
+- hosts: localhost 
+  vars_files:
+    - vault.yml
+    - vars.yml
+  tasks: 
+    - name: create instance
+      waldur_marketplace_os_instance:
+        access_token: "{{ etais_access_token }}"
+        api_url: "{{ api_url }}"
+        data_volume_size: 1 
+        data_volume_type: "{{ data_volume_type }}"
+        flavor: "{{ flavor_name }}"
+        floating_ip: auto 
+        image: "{{ image_name }}"
+        name: "{{ instance_name }}"
+        project: "{{ project_name }}"
+        offering: "{{ offering_name }}"
+        security_groups: "{{ security_groups }}"
+        ssh_key: "{{ ssh_key_name }}"
+        state: present
+        subnet: "{{ subnet_name }}"
+        system_volume_size: 20 
+        system_volume_type: "{{ system_volume_type }}"
+
+    - name: get instance
+      waldur_marketplace_os_get_instance:
+        access_token: '{{ etais_access_token }}'
+        api_url: "{{ api_url }}"
+        project: "{{ project_name }}"
+        name: "{{ instance_name }}"
+      register: result
+
+    - name: update inventory file with instance ip
+      delegate_to: localhost
+      template: 
+        dest: inventory/hosts
+        src: hosts.j2
+
+    - name: refresh 
+      meta: refresh_inventory

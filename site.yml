@@ -1,37 +1,4 @@
-- hosts: sysadmin
-  become: true
-  become_user: root
-
-  vars_files:
-    - vault.yml
-
-  vars:
-    hostname: c18235
-    domain_name: sa.cs.ut.ee
-    ut_dns: 172.17.0.217
-    notify_server: 172.17.66.134
-    my_name: Mir Jalal 
-    mail_to: nagios@scoring.sa.cs.ut.ee
-    mail_user: mailuser
-    mail_subject: "from {{ hostname }}"
-    mail_body: "\n\nHello! \nThis is a e-mail sent with ansible from terminal \nby {{ mail_user }} from {{ hostname }}"
-    kv_pass: "random123"
-    docker: 
-      network: 
-        subnet: "192.169.67.0/24"
-        iprange: "192.169.67.0/24"
-        gateway: "192.169.67.254"
-      container_ip: "192.169.67.2"
-
-  roles:
-  - { role: etais, tags: etais }
-  - { role: dns, tags: dns }
-  - { role: apache, tags: apache }
-  - { role: email, tags: email }
-  - { role: tls, tags: tls }
-  - { role: fs, tags: fs }
-  - { role: docker, tags: docker }
-  - { role: container, tags: container }
-  - { role: devops, tags: devops }
-  - { role: kubernetes, tags: kubernetes }
-  - { role: k8s, tags: k8s }
+--- 
+- import_playbook: waldur-create-vm.yml
+- import_playbook: sys-admin-labs.yml
+# - import_playbook: waldur-delete-vm.yml

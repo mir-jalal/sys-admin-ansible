@@ -48,6 +48,8 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 - [docker_container](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_container_module.html)
 - [docker_network](https://docs.ansible.com/ansible/latest/collections/community/docker/docker_network_module.html)
 - [k8s](https://docs.ansible.com/ansible/latest/collections/kubernetes/core/k8s_module.html)
+- [waldur_marketplace_os_instance](https://github.com/waldur/ansible-waldur-module/blob/develop/waldur_marketplace_os_instance.py)
+- [waldur_marketplace_os_get_instance](https://github.com/waldur/ansible-waldur-module/blob/develop/waldur_marketplace_os_get_instance.py)
 
 > You might need to run `ansible-galaxy collection install ansible.posix` to install the module in `posix`.
 >
@@ -63,6 +65,21 @@ You can use `ansible-vault` to create `vault.yml` file, so you can store sensiti
 > ansible-galaxy collection install cloud.common
 > ansible-galaxy collection install kubernetes.core
 > ```
+>
+> For ansible-waldur-module please refer to the [ansible-waldur-module](https://github.com/waldur/ansible-waldur-module) repository.
+> 
+> It might be helpful for you to install ansible-waldur-module into user modules.
+> 
+> You might need to change `/.local/lib/python3.8/site-packages/` to your `python-packages` directory.
+> ```shell
+> pip install ansible-waldur-module
+> mkdir -p /home/$USER/.ansible/plugins/modules
+> cp -r /home/$USER/.local/lib/python3.8/site-packages/waldur* /home/$USER/.ansible/plugins/modules
+> ```
+> 
+>> Deep note: I'm not that much good at `python-packages` so the commands above might not work for you.
+> 
+
 
 ## Playbooks
 
@@ -74,8 +91,11 @@ sys-admin-ansible
 ├── roles
 │   ├── apache
 │   │   ├── files
+│   │   │   ├── modsecurity_localrules.conf
+│   │   │   ├── php-fpm.conf
 │   │   │   ├── proxy.service
-│   │   │   └── website.py
+│   │   │   ├── website.py
+│   │   │   └── www.conf
 │   │   ├── handlers
 │   │   │   └── main.yml
 │   │   ├── tasks
@@ -124,8 +144,13 @@ sys-admin-ansible
 │   │       └── main.yml
 │   ├── email
 │   │   ├── files
+│   │   │   ├── 10-auth.conf
+│   │   │   ├── 10-logging.conf
+│   │   │   ├── 10-mail.conf
 │   │   │   ├── 10-master.conf
+│   │   │   ├── 10-ssl.conf
 │   │   │   ├── 15-mailboxes.conf
+│   │   │   ├── dovecot.conf
 │   │   │   └── master.cf
 │   │   ├── handlers
 │   │   │   └── main.yml
@@ -133,6 +158,7 @@ sys-admin-ansible
 │   │   │   └── main.yml
 │   │   └── templates
 │   │       ├── config.inc.php.j2
+│   │       ├── main.cf.j2
 │   │       └── virtualhostmail.j2
 │   ├── etais
 │   │   ├── tasks
@@ -140,6 +166,8 @@ sys-admin-ansible
 │   │   └── templates
 │   │       └── resolv.j2
 │   ├── fs
+│   │   ├── files
+│   │   │   └── smb.conf
 │   │   ├── handlers
 │   │   │   └── main.yml
 │   │   └── tasks
@@ -158,6 +186,7 @@ sys-admin-ansible
 │   │       └── main.yml
 │   └── tls
 │       ├── files
+│       │   ├── 10-ssl.conf
 │       │   ├── ca.crt
 │       │   ├── cert.crt
 │       │   ├── key.key
@@ -167,13 +196,19 @@ sys-admin-ansible
 │       ├── tasks
 │       │   └── main.yml
 │       └── templates
+│           ├── main.cf.j2
 │           ├── virtualhosthttp.j2
 │           ├── virtualhostproxy.j2
 │           └── virtualhostword.j2
 ├── site.yml
 ├── sys-admin-ansible.iml
-└── vault.yml
+├── sys-admin-labs.yml
+├── templates
+│   └── hosts.j2
+├── vars.yml
+├── vault.yml
+├── waldur-create-vm.yml
+└── waldur-delete-vm.yml
 
-47 directories, 58 files
+49 directories, 75 files
 ```
-

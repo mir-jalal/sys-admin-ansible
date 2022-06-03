@@ -39,8 +39,8 @@
 
 - name: Inserts into hostname
   template:
-    src: hostname.j2
-    dest: /etc/hostname
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
     owner: root
     group: root
     mode: '0644'
@@ -148,3 +148,6 @@
       };
     marker: "# {mark} ANSIBLE MANAGED BLOCK for reverse zone"
   notify: restart bind  
+
+- name: flush handlers
+  meta: flush_handlers
