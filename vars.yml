@@ -1,12 +1,12 @@
-hostname: c18235
-domain_name: sa.cs.ut.ee
+hostname: c18235m
+domain_name: sysadexam.cs.ut.ee
 
 ut_dns: 172.17.0.217
-notify_server: 172.17.66.134
+notify_server: 172.17.66.228
 timezone: Europe/Tallinn
 
 my_name: Mir Jalal 
-mail_to: nagios@scoring.sa.cs.ut.ee
+mail_to: nagios@scoring.sysadexam.cs.ut.ee
 mail_user: mailuser
 mail_subject: "from {{ hostname }}"
 mail_body: "\n\nHello! \nThis is a e-mail sent with ansible from terminal \nby {{ mail_user }} from {{ hostname }}"

@@ -1,4 +1,4 @@
 --- 
-- import_playbook: waldur-create-vm.yml
+# - import_playbook: waldur-create-vm.yml
 - import_playbook: sys-admin-labs.yml
 # - import_playbook: waldur-delete-vm.yml

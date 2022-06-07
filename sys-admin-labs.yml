@@ -7,14 +7,14 @@
     - vars.yml
 
   roles:
-  - { role: etais, tags: etais }
+#  - { role: etais, tags: etais }
   - { role: dns, tags: dns }
   - { role: apache, tags: apache }
   - { role: email, tags: email }
   - { role: tls, tags: tls }
-  - { role: fs, tags: fs }
+#  - { role: fs, tags: fs }
   - { role: docker, tags: docker }
   - { role: container, tags: container }
   - { role: devops, tags: devops }
-  - { role: kubernetes, tags: kubernetes }
-  - { role: k8s, tags: k8s }
+#  - { role: kubernetes, tags: kubernetes }
+#  - { role: k8s, tags: k8s }

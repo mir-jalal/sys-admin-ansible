@@ -1,5 +1,5 @@
     <VirtualHost *:80>
-        ServerName proxy.{{ hostname }}.{{ domain_name }} 
+        ServerName container-proxy.{{ hostname }}.{{ domain_name }} 
         # ServerName sets the name to listen for with requests
         ErrorLog /var/log/httpd/proxy-error_log
         CustomLog /var/log/httpd/proxy-access_log common
